@@ -1,0 +1,197 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum AdminRole {
+  superadmin
+  support
+}
+
+enum GroupType {
+  trip
+  flat
+  event
+  other
+}
+
+enum Currency {
+  INR
+  USD
+  EUR
+  GBP
+}
+
+enum SplitType {
+  equal
+  exact
+  percent
+  shares
+}
+
+enum ExpenseCategory {
+  Food
+  Travel
+  Housing
+  Entertainment
+  Shopping
+  Utilities
+  Other
+}
+
+enum ExpenseStatus {
+  confirmed
+  pending
+  disputed
+}
+
+enum SettlementStatus {
+  pending
+  completed
+}
+
+enum DonationStatus {
+  pledged
+  transferred
+}
+
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  passwordHash    String
+  name            String
+  avatarUrl       String?
+  phone           String?        @unique
+  isEmailVerified Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  createdGroups   Group[]        @relation("CreatedGroups")
+  groupMemberships GroupMember[]
+  paidExpenses    Expense[]      @relation("PaidExpenses")
+  expenseSplits   ExpenseSplit[]
+  sentSettlements Settlement[]   @relation("SentSettlements")
+  receivedSettlements Settlement[] @relation("ReceivedSettlements")
+  donations       Donation[]
+}
+
+model Admin {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(support)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Group {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  type        GroupType     @default(trip)
+  currency    Currency      @default(INR)
+  inviteCode  String        @unique
+  qrCodeUrl   String?
+  createdById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  createdBy   User          @relation("CreatedGroups", fields: [createdById], references: [id])
+  members     GroupMember[]
+  expenses    Expense[]
+  settlements Settlement[]
+  donations   Donation[]
+  activities  ActivityLog[]
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  userId    String
+  role      String   @default("member") // "admin" | "member"
+  joinedAt  DateTime @default(now())
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model Expense {
+  id               String          @id @default(uuid())
+  groupId          String
+  paidById         String
+  amount           Float
+  currency         Currency        @default(INR)
+  category         ExpenseCategory @default(Other)
+  description      String
+  splitType        SplitType       @default(equal)
+  receiptUrl       String?
+  status           ExpenseStatus   @default(confirmed)
+  carbonEstimateKg Float?          @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  group            Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  paidBy           User            @relation("PaidExpenses", fields: [paidById], references: [id])
+  splits           ExpenseSplit[]
+}
+
+model ExpenseSplit {
+  id         String   @id @default(uuid())
+  expenseId  String
+  userId     String
+  amount     Float
+  percentage Float?
+  shares     Float?
+
+  expense    Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Settlement {
+  id              String           @id @default(uuid())
+  groupId         String
+  fromUserId      String
+  toUserId        String
+  amount          Float
+  currency        Currency         @default(INR)
+  status          SettlementStatus @default(completed)
+  roundUpDonation Float?           @default(0)
+  paymentNote     String?
+  settledAt       DateTime         @default(now())
+
+  group           Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  fromUser        User             @relation("SentSettlements", fields: [fromUserId], references: [id])
+  toUser          User             @relation("ReceivedSettlements", fields: [toUserId], references: [id])
+}
+
+model Donation {
+  id          String         @id @default(uuid())
+  groupId     String
+  userId      String
+  amount      Float
+  charityName String         @default("Clean Ocean & Reforestation Fund")
+  status      DonationStatus @default(pledged)
+  createdAt   DateTime       @default(now())
+
+  group       Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  groupId    String
+  actorId    String
+  actorName  String
+  actionType String
+  details    String
+  timestamp  DateTime @default(now())
+
+  group      Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}

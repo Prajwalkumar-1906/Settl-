@@ -1,0 +1,16 @@
+{
+  "name": "settl-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix apps/server run dev",
+    "dev:client": "npm --prefix apps/client run dev",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "dev:mobile": "npm --prefix apps/mobile run start",
+    "test": "npx vitest run apps/server/tests/settlement.test.ts",
+    "build": "npm --prefix apps/server run build && npm --prefix apps/client run build && npm --prefix apps/admin run build"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}
