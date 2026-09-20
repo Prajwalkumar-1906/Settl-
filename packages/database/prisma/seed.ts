@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -16,11 +17,13 @@ async function main() {
   await prisma.admin.deleteMany();
   await prisma.user.deleteMany();
 
+  const defaultPasswordHash = bcrypt.hashSync('admin123', 10);
+
   // Create Admins
   const superAdmin = await prisma.admin.create({
     data: {
       email: 'admin@settl.app',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG', // "admin123"
+      passwordHash: defaultPasswordHash,
       name: 'Super Admin',
       role: 'superadmin',
     },
@@ -29,7 +32,7 @@ async function main() {
   const supportAdmin = await prisma.admin.create({
     data: {
       email: 'support@settl.app',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'Support Agent',
       role: 'support',
     },
@@ -41,7 +44,7 @@ async function main() {
   const alex = await prisma.user.create({
     data: {
       email: 'alex@example.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'Alex Rivera',
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       phone: '+919876543210',
@@ -52,7 +55,7 @@ async function main() {
   const sarah = await prisma.user.create({
     data: {
       email: 'sarah@example.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'Sarah Chen',
       avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150',
       phone: '+919876543211',
@@ -63,7 +66,7 @@ async function main() {
   const michael = await prisma.user.create({
     data: {
       email: 'michael@example.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'Michael Vance',
       avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       phone: '+919876543212',
@@ -74,7 +77,7 @@ async function main() {
   const priya = await prisma.user.create({
     data: {
       email: 'priya@example.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'Priya Sharma',
       avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
       phone: '+919876543213',
@@ -85,7 +88,7 @@ async function main() {
   const david = await prisma.user.create({
     data: {
       email: 'david@example.com',
-      passwordHash: '$2b$10$EpRnTzVlqHNP0.fKbX26D.o92uQ4V48mQ8B8h9VlWz1f8b4o1P.qG',
+      passwordHash: defaultPasswordHash,
       name: 'David Kim',
       avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       phone: '+919876543214',

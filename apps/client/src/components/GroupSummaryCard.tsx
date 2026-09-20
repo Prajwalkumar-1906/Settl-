@@ -42,12 +42,12 @@ export const GroupSummaryCard: React.FC<GroupSummaryCardProps> = ({
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={item.user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                  alt={item.user.name}
+                  src={item.user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.userId}`}
+                  alt={item.user?.name || 'Member'}
                   className="w-9 h-9 rounded-full object-cover border border-slate-700"
                 />
                 <div>
-                  <div className="text-xs font-semibold text-white">{item.user.name}</div>
+                  <div className="text-xs font-semibold text-white">{item.user?.name || 'Member'}</div>
                   <div className="text-[10px] text-slate-400">
                     Paid {currencySymbol}{item.totalPaid.toFixed(2)} • Share {currencySymbol}{item.totalOwed.toFixed(2)}
                   </div>

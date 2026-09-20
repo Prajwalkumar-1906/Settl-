@@ -1,62 +1,10 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
-}
-
-enum AdminRole {
-  superadmin
-  support
-}
-
-enum GroupType {
-  trip
-  flat
-  event
-  other
-}
-
-enum Currency {
-  INR
-  USD
-  EUR
-  GBP
-}
-
-enum SplitType {
-  equal
-  exact
-  percent
-  shares
-}
-
-enum ExpenseCategory {
-  Food
-  Travel
-  Housing
-  Entertainment
-  Shopping
-  Utilities
-  Other
-}
-
-enum ExpenseStatus {
-  confirmed
-  pending
-  disputed
-}
-
-enum SettlementStatus {
-  pending
-  completed
-}
-
-enum DonationStatus {
-  pledged
-  transferred
 }
 
 model User {
@@ -70,13 +18,13 @@ model User {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  createdGroups   Group[]        @relation("CreatedGroups")
+  createdGroups    Group[]        @relation("CreatedGroups")
   groupMemberships GroupMember[]
-  paidExpenses    Expense[]      @relation("PaidExpenses")
-  expenseSplits   ExpenseSplit[]
-  sentSettlements Settlement[]   @relation("SentSettlements")
+  paidExpenses     Expense[]      @relation("PaidExpenses")
+  expenseSplits    ExpenseSplit[]
+  sentSettlements  Settlement[]   @relation("SentSettlements")
   receivedSettlements Settlement[] @relation("ReceivedSettlements")
-  donations       Donation[]
+  donations        Donation[]
 }
 
 model Admin {
@@ -84,7 +32,7 @@ model Admin {
   email        String    @unique
   passwordHash String
   name         String
-  role         AdminRole @default(support)
+  role         String    @default("support") // "superadmin" | "support"
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -93,8 +41,8 @@ model Group {
   id          String        @id @default(uuid())
   name        String
   description String?
-  type        GroupType     @default(trip)
-  currency    Currency      @default(INR)
+  type        String        @default("trip") // "trip" | "flat" | "event" | "other"
+  currency    String        @default("INR")  // "INR" | "USD" | "EUR" | "GBP"
   inviteCode  String        @unique
   qrCodeUrl   String?
   createdById String
@@ -127,12 +75,12 @@ model Expense {
   groupId          String
   paidById         String
   amount           Float
-  currency         Currency        @default(INR)
-  category         ExpenseCategory @default(Other)
+  currency         String          @default("INR")
+  category         String          @default("Other")
   description      String
-  splitType        SplitType       @default(equal)
+  splitType        String          @default("equal")
   receiptUrl       String?
-  status           ExpenseStatus   @default(confirmed)
+  status           String          @default("confirmed")
   carbonEstimateKg Float?          @default(0)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -160,8 +108,8 @@ model Settlement {
   fromUserId      String
   toUserId        String
   amount          Float
-  currency        Currency         @default(INR)
-  status          SettlementStatus @default(completed)
+  currency        String           @default("INR")
+  status          String           @default("completed")
   roundUpDonation Float?           @default(0)
   paymentNote     String?
   settledAt       DateTime         @default(now())
@@ -177,7 +125,7 @@ model Donation {
   userId      String
   amount      Float
   charityName String         @default("Clean Ocean & Reforestation Fund")
-  status      DonationStatus @default(pledged)
+  status      String         @default("pledged")
   createdAt   DateTime       @default(now())
 
   group       Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)

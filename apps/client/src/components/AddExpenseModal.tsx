@@ -149,8 +149,8 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               className="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors"
             >
               {members.map((m) => (
-                <option key={m.userId} value={m.userId}>
-                  {m.user.name} ({m.user.email})
+                <option key={m.userId || m.id} value={m.userId || m.id}>
+                  {m.user?.name || 'Member'} ({m.user?.email || 'user'})
                 </option>
               ))}
             </select>
@@ -188,8 +188,8 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
               <span className="text-[10px] text-slate-400">Specify amount for each person:</span>
               {members.map((m) => (
-                <div key={m.userId} className="flex items-center justify-between text-xs">
-                  <span className="text-slate-300">{m.user.name}</span>
+                <div key={m.userId || m.id} className="flex items-center justify-between text-xs">
+                  <span className="text-slate-300">{m.user?.name || 'Member'}</span>
                   <input
                     type="number"
                     step="0.01"
